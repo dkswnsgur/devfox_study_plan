@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="4.0"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee                       
+						http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
+
+	<!-- 現在ウェブアプリケーションで受け入れるすべての要請に対してappServletという名前で定義されているサーブレットを使用する。 -->
+	<servlet-mapping>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<!-- 要請情報を分析してコントローラーを選択するサーブレットを指定する。 -->
+	<servlet>
+        <servlet-name>appServlet</servlet-name>
+        <!-- Spring MVCで提供している基本サーブレットを指定する。 -->
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- Spring MVC設定のためのxmlファイルを指定する。 -->
+        <init-param>
+        	<param-name>contextConfigLocation</param-name>
+        	<param-value>/WEB-INF/config/servlet-context.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <multipart-config>
+        	<max-file-size>52428800</max-file-size>
+        	<max-request-size>524288000</max-request-size>
+        	<file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    
+    <!-- Beanを定義するxmlファイルを指定する。 -->
+    <context-param>
+    	<param-name>contextConfigLocation</param-name>
+    	<param-value>/WEB-INF/config/root-context.xml</param-value>
+    </context-param>
+    
+    <!-- リスナー設定 -->
+    <listener>
+    	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    
+    <!-- パラメータエンコードフィルタ設定 -->
+    <filter>
+    	<filter-name>encodingFilter</filter-name>
+    	<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    	<init-param>
+    		<param-name>encoding</param-name>
+    		<param-value>UTF-8</param-value>
+    	</init-param>
+    	<init-param>
+    		<param-name>forceEncoding</param-name>
+    		<param-value>true</param-value>
+    	</init-param>
+    </filter>
+    
+    <filter-mapping>
+    	<filter-name>encodingFilter</filter-name>
+    	<url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter>
+    	<display-name>springMultipartFilter</display-name>
+    	<filter-name>springMultipartFilter</filter-name>
+    	<filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
+    	<init-param>
+    		<param-name>multipartResolverBeanName</param-name>
+    		<param-value>multipartResolver</param-value>
+    	</init-param>
+    </filter>
+    
+    <filter-mapping>
+    	<filter-name>springMultipartFilter</filter-name>
+    	<url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
