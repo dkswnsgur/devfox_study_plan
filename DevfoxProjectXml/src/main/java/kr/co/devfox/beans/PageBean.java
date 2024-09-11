@@ -1,44 +1,45 @@
 package kr.co.devfox.beans;
 
-public class PageBean {
-	
-	// 最小ページ番号
-	private int min;
-	// 最大ページ番号
-	private int max;
-	// 前ボタンのページ番号
-	private int prevPage;
-	// 次のボタンのページ番号
-	private int nextPage;
-	// 全ページ数
-	private int pageCnt;
-	// 現在のページ番号
-	private int currentPage;
+public class PageBean {    //ページネーション情報を計算して管理するためのJavaクラス
 	
 	
-	// content Cnt : 全文数、current Page : 現在の文番号、content Page Cnt : ページ当たり文の数、pagination Cnt : ページボタンの数
-	public PageBean(int contentCnt, int currentPage, int contentPageCnt, int paginationCnt) {
+	private int min;    //ページネーションで表示される最小ページ番号
+	
+	private int max;    //ページネーションで表示される最大ページ番号
+	
+	private int prevPage;  //"以前"ボタンをクリックしたときに移動するページ番号
+	
+	private int nextPage;  //"次へ"ボタンをクリックしたときに移動するページ番号
+
+	private int pageCnt;    //全ページ数
+	
+	private int currentPage; //現在見ているページ番号
+	
+	
+	
+	public PageBean(int contentCnt, int currentPage, int contentPageCnt, int paginationCnt) { 
+		//ページネーションに必要な値を計算するロジック入力値としては、総コンテンツ数(content Cnt)、現在のページ番号(current Page)、1ページに表示するコンテンツ数(content Page Cnt)、そしてページネーションボタンの個数(pagination Cnt)が伝達
 		
-		// 現在のページ番号
+		
 		this.currentPage = currentPage;
 		
-		// 全ページ数
-		pageCnt = contentCnt / contentPageCnt;
-		if(contentCnt % contentPageCnt > 0) {
-			pageCnt++;
+		
+		pageCnt = contentCnt / contentPageCnt;   //全ページ数=総コンテンツ数/1ページに表示するコンテンツ数
+		if(contentCnt % contentPageCnt > 0) {  //総コンテンツ数% 1ページに表示するコンテンツ数 > 0
+			pageCnt++; //全ページ数 ++
 		}
 		
-		min = ((currentPage - 1) / contentPageCnt) * contentPageCnt + 1;
-		max = min + paginationCnt - 1;
+		min = ((currentPage - 1) / contentPageCnt) * contentPageCnt + 1; //最小ページ番号 = ((現在のページ番号-1) / 1ページに表示するコンテンツ数) * 1ページに表示するコンテンツ数 + 1
+		max = min + paginationCnt - 1;  //最大ページ番号 = 最小ページ番号 + ページネーションボタンの個数 - 1
 		
-		if(max > pageCnt) {
-			max = pageCnt;
+		if(max > pageCnt) {  //if（最大ページ番号 > 全ページ数）
+			max = pageCnt;   //最大ページ番号=全ページ数
 		}
 		
-		prevPage = min - 1;
-		nextPage = max + 1;
-		if(nextPage > pageCnt) {
-			nextPage = pageCnt;
+		prevPage = min - 1;  // "以前"ボタンをクリックしたときに移動するページ番号 = 最小ページ番号 - 1
+		nextPage = max + 1;  // "次へ"ボタンをクリックしたときに移動するページ番号 = 最大ページ番号 + 1
+		if(nextPage > pageCnt) {  // if（"次へ"ボタンをクリックしたときに移動するページ番号 > 全ページ数）
+			nextPage = pageCnt;  // "次へ"ボタンをクリックしたときに移動するページ番号=全ページ数
 		}
 	}
 	

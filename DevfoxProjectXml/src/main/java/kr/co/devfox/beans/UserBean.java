@@ -3,29 +3,29 @@ package kr.co.devfox.beans;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-public class UserBean {
-	private int user_idx;
+public class UserBean {           //ユーザー情報を保存および管理するためのJavaクラス
+	private int user_idx;         //ユーザー固有のインデックスを保存する整数フィールド
 	
-	@Size(min=2, max=4)
-	@Pattern(regexp = "[가-힣]*")
-	private String user_name;
+	@Size(min=2, max=4)            //名前の長さが2字から4字の間であることを意味する
+	@Pattern(regexp = "[가-힣]*")   //ハングルのみ入力可能である意味
+	private String user_name;      //ユーザー名を保存する文字列型フィールド
 	
-	@Size(min=4, max=20)
-	@Pattern(regexp = "[a-zA-Z0-9]*")
-	private String user_id;
+	@Size(min=4, max=20)              //名前の長さが2字から4字の間であることを意味する
+	@Pattern(regexp = "[a-zA-Z0-9]*") //アルファベットの大文字と小文字のみ入力可能である意味
+	private String user_id;           //ユーザーIDを保存する文字列型フィールド
 	
-	@Size(min=4, max=20)
-	@Pattern(regexp = "[a-zA-Z0-9]*")
-	private String user_pw;
+	@Size(min=4, max=20)                //名前の長さが2字から4字の間であることを意味する
+	@Pattern(regexp = "[a-zA-Z0-9]*")   //アルファベットの大文字と小文字のみ入力可能である意味
+	private String user_pw;             //ユーザーのパスワードを保存する文字列型フィールド
 	
-	@Size(min=4, max=20)
-	@Pattern(regexp = "[a-zA-Z0-9]*")
-	private String user_pw2;
+	@Size(min=4, max=20)                //名前の長さが2字から4字の間であることを意味する
+	@Pattern(regexp = "[a-zA-Z0-9]*")   //アルファベットの大文字と小文字のみ入力可能である意味
+	private String user_pw2;           //ユーザーのパスワード確認用フィールド
 	
-	private boolean userIdExist;
-	private boolean userLogin;
+	private boolean userIdExist;     //IDが既に存在するかどうかを示すブールフィールド
+	private boolean userLogin;       //ユーザーがログインしているかどうかを示すブールフィールド
 	
-	public UserBean() {
+	public UserBean() {               //userIdExistとuserLoginをfalseに初期化
 		this.userIdExist = false;
 		this.userLogin = false;
 	}

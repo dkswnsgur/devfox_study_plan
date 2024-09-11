@@ -4,22 +4,22 @@ import javax.validation.constraints.NotBlank;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public class ContentBean {
-	private int content_idx;
+public class ContentBean {          //掲示板のコンテンツ情報を保存するためのJavaクラス
+	private int content_idx;        //コンテンツ固有のインデックスを保存する整数フィールド
 	
-	@NotBlank
-	private String content_subject;
+	@NotBlank                       //空文字列やヌル値が許容されないように有効性検査が適用
+	private String content_subject; //コンテンツのタイトルを保存する文字列型フィールド
 	
-	@NotBlank
-	private String content_text;
+	@NotBlank                       //空文字列やヌル値が許容されないように有効性検査が適用
+	private String content_text;    //コンテンツのタイトルを保存する文字列型フィールド
 	
-	private MultipartFile upload_file;
+	private MultipartFile upload_file; //アップロードされたファイルを保存するMultipartFileオブジェクト
 	
-	private String content_file;
-	private int content_writer_idx;
-	private int content_board_idx;
-	private String content_date;
-	private String content_writer_name;
+	private String content_file;       //アップロードされたファイルの名前を保存する文字列型フィールド
+	private int content_writer_idx;    //コンテンツ作成者の固有インデックスを保存する整数フィールド
+	private int content_board_idx;     //コンテンツが掲示された掲示板の固有インデックスを保存する整数フィールド
+	private String content_date;       //コンテンツが作成された日付を保存する文字列型フィールド
+	private String content_writer_name;  //コンテンツ作成者の名前を保存する文字列型フィールド
 	
 	public int getContent_idx() {
 		return content_idx;
