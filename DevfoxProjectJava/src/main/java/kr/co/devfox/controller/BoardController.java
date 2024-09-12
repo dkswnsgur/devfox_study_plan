@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import kr.co.devfox.beans.CommentBean;
 import kr.co.devfox.beans.ContentBean;
 import kr.co.devfox.beans.PageBean;
 import kr.co.devfox.beans.UserBean;
@@ -27,26 +28,39 @@ public class BoardController { //掲示板crudを使用するboardクラス
 	@Autowired //掲示板に関連するビジネスロジックを処理するサービスクラススプリングの依存性注入(DI)機能で自動的に接続
 	private BoardService boardService;
 	
+	@Autowired //掲示板に関連するビジネスロジックを処理するサービスクラススプリングの依存性注入(DI)機能で自動的に接続
+	private UserBean userBean;
+	
 	@Resource(name = "loginUserBean") //セッションに保存されたloginUserBeanオブジェクトを参照
 	private UserBean loginUserBean;
 	
 	@GetMapping("/main") ///board/mainに入ってくるGET要請を処理
 	public String main(@RequestParam("board_info_idx") int board_info_idx, //board_info_idxはどんな掲示板なのかを識別するインデックス
 					   @RequestParam(value = "page", defaultValue = "1") int page, //現在見ているページ番号で、既定値は1
+					   @RequestParam(value = "searchKeyword", required = false)String searchKeyword,
 					   Model model) {
 		
+		
 		model.addAttribute("board_info_idx", board_info_idx); //モデルにデータを盛り込み、ビューに配信
+		model.addAttribute("searchKeyword", searchKeyword);
 		
 		String boardInfoName = boardService.getBoardInfoName(board_info_idx); 
 		model.addAttribute("boardInfoName", boardInfoName); //該当掲示板の名前を取得してビューに送信
-		
-		List<ContentBean> contentList = boardService.getContentList(board_info_idx, page);
-		model.addAttribute("contentList", contentList); // 現在のページに該当する投稿リストを取得する
 		
 		PageBean pageBean = boardService.getContentCnt(board_info_idx, page);
 		model.addAttribute("pageBean", pageBean); //全投稿数をもとにページネーション情報を取得し、ビューに配信
 		
 		model.addAttribute("page", page); 
+		
+		List<ContentBean> contentList = boardService.getContentList(board_info_idx, page); //現在のページのコンテンツリストを取得する
+		
+		if (searchKeyword != null && !searchKeyword.trim().isEmpty()) { //searchKeywordが存在して空の文字列でない場合、検索結果をcontentListに設定
+			contentList = boardService.searchContentList(board_info_idx, searchKeyword); //検索語を使用してコンテンツをフィルタリングし、contentListに保存
+		} else {
+			contentList = boardService.getContentList(board_info_idx, page); 
+		}
+		
+		model.addAttribute("contentList", contentList); // 現在のページに該当する投稿リストを取得する
 		
 		return "board/main"; //"board/main"を返し、JSPで掲示板リストとページネーションを表示できるようにする
 	}
@@ -65,6 +79,10 @@ public class BoardController { //掲示板crudを使用するboardクラス
 		
 		model.addAttribute("loginUserBean", loginUserBean); //ログインしたユーザー情報をモデルに入れて伝達する。 この情報は、当該ユーザが掲示文の作成者であるか否かを判断
 		model.addAttribute("page", page);
+		
+		List<CommentBean> commentList = boardService.getCommentList(content_idx); //コメントリストの並び替え
+		model.addAttribute("commentList", commentList);
+		
 		
 		return "board/read"; //「board/read」ビューを返し、ユーザーが選択した掲示文を読める画面を表示する
 	}
@@ -88,6 +106,17 @@ public class BoardController { //掲示板crudを使用するboardクラス
 		
 		return "board/write_success"; //「board/write_success」ビューを返し、ユーザーが掲示文の作成に成功した時に画面を表示する
 	}
+	
+	
+	@PostMapping("/addComment") //board/addCommentで入ってくるPOST要請を処理して掲示文を保存
+	public String commentwrite_pro(@ModelAttribute("writeCommentBean") CommentBean writeCommentBean, BindingResult result) { 
+				
+		boardService.addComment(writeCommentBean);
+		
+		return "board/addComment"; 
+	}
+		
+	
 	
 	@GetMapping("/modify") ///board/modifyで入ってくるGET要請を処理して文の修正画面を表示し
 	public String modify(@RequestParam("board_info_idx") int board_info_idx,
@@ -141,6 +170,15 @@ public class BoardController { //掲示板crudを使用するboardクラス
 		model.addAttribute("board_info_idx", board_info_idx);
 		
 		return "board/delete"; //"board/delete"ビューを返し、ユーザーが掲示文の削除に成功すると、成功画面が表示される
+	}
+	
+	@PostMapping("/deleteComment") //board/deleteCommentに入ってくるPost要請を処理して掲示
+	public String deleteComment_pro(@RequestParam("comment_id") int comment_id,			                       
+			                        Model model) {
+		
+		boardService.deleteCommentInfo(comment_id);
+		
+		return "board/deleteComment"; 
 	}
 	
 	@GetMapping("/not_writer")

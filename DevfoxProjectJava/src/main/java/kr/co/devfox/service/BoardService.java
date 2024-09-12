@@ -13,10 +13,12 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import kr.co.devfox.beans.CommentBean;
 import kr.co.devfox.beans.ContentBean;
 import kr.co.devfox.beans.PageBean;
 import kr.co.devfox.beans.UserBean;
 import kr.co.devfox.dao.BoardDao;
+import kr.co.devfox.dao.CommentDao;
 
 @Service
 @PropertySource("/WEB-INF/properties/option.properties") //option.propertiesファイルから設定値を読み込む
@@ -33,6 +35,9 @@ public class BoardService { //このBoard Serviceクラスは、掲示板関連�
 	
 	@Autowired
 	private BoardDao boardDao; //BoardDaoオブジェクトを自動注入
+	
+	@Autowired
+	private CommentDao commentDao;
 	
 	@Resource(name = "loginUserBean")
 	private UserBean loginUserBean;
@@ -65,6 +70,11 @@ public class BoardService { //このBoard Serviceクラスは、掲示板関連�
 		boardDao.addContentInfo(writeContentBean); //boardDaoを通じて掲示物情報をデータベースに追加
 	}
 	
+       public void addComment(CommentBean writeCommentBean) { 
+    	   
+        commentDao.addComment(writeCommentBean);
+	}
+	
 	public String getBoardInfoName(int board_info_idx) { //与えられた掲示板インデックスに該当する掲示板の名前を返還
 		return boardDao.getBoardInfoName(board_info_idx);
 	}
@@ -74,8 +84,22 @@ public class BoardService { //このBoard Serviceクラスは、掲示板関連�
 		int start = (page - 1) * page_listcnt; //ページ番号に基づいてデータベースで照会する投稿の開始位置を計算
 		RowBounds rowBounds = new RowBounds(start, page_listcnt); //RowBoundsオブジェクトを使用してページネーションを処理
 		
-		return boardDao.getContentList(board_info_idx, rowBounds);
+		return boardDao.getContentList(board_info_idx, rowBounds); //boardDaoのsearchContentListメソッドを呼び出し、検索結果を取得する
 	}
+	
+    public List<CommentBean> getCommentList(int contentIdx){ 
+    	
+    	
+	
+		return commentDao.getCommentList(contentIdx);
+	}
+	
+	
+	public List<ContentBean> searchContentList(int board_info_idx, String searchKeyword){ //searchContentListメソッドはboardDaoで検索されたコンテンツリストを返却
+		return boardDao.searchContentList(board_info_idx, searchKeyword);
+		
+	}
+	
 	
 	public ContentBean getContentInfo(int content_idx) { //与えられた掲示物インデックスに該当する掲示物の詳細情報を返還
 		return boardDao.getContentInfo(content_idx);
@@ -95,6 +119,10 @@ public class BoardService { //このBoard Serviceクラスは、掲示板関連�
 	
 	public void deleteContentInfo(int content_idx) { //与えられた投稿インデックスに該当する投稿を削除する
 		boardDao.deleteContentInfo(content_idx);
+	}
+	
+	public void deleteCommentInfo(int comment_id) { 
+		commentDao.deleteCommentInfo(comment_id);
 	}
 	
 	public PageBean getContentCnt(int content_board_idx, int currentPage) { //掲示板の総掲示物数を計算し、これを基にPageBeanオブジェクトを生成して返却する

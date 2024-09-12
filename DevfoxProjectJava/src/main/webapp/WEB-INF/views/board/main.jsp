@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <c:set var='root' value="${pageContext.request.contextPath }/"/>
 <!DOCTYPE html>
 <html>
@@ -23,6 +24,7 @@
 	<div class="card shadow">
 		<div class="card-body">
 			<h4 class="card-title">${boardInfoName }</h4>
+			
 			<table class="table table-hover" id='board_list'>
 				<thead>
 					<tr>
@@ -39,11 +41,20 @@
 						<td><a href='${root }board/read?board_info_idx=${board_info_idx}&content_idx=${obj.content_idx}&page=${page}'>${obj.content_subject }</a></td>
 						<td class="text-center d-none d-md-table-cell">${obj.content_writer_name }</td>
 						<td class="text-center d-none d-md-table-cell">${obj.content_date }</td>
-						
 					</tr>
 					</c:forEach>
 				</tbody>
 			</table>
+			
+			 <div class="mb-3">
+			 <ul class="pagination justify-content-center">
+                <form action="${root }board/main" method="get" class="form-inline">
+                    <input type="hidden" name="board_info_idx" value="${board_info_idx}">
+                    <input type="text" name="searchKeyword" class="form-control mr-2" placeholder="タイトル検索" value="${param.searchKeyword}">
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </form>
+                </ul>
+            </div>
 			
 			<div class="d-none d-md-block">
 				<ul class="pagination justify-content-center">

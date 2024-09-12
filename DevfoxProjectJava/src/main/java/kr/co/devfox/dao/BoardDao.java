@@ -26,7 +26,9 @@ public class BoardDao { //DAO(Data Access Object)クラスで、データベー�
 	public List<ContentBean> getContentList(int board_info_idx, RowBounds rowBounds){ //特定掲示板の掲示物リストを取得するメソッド
 		return boardMapper.getContentList(board_info_idx, rowBounds); //board_info_idxで掲示板を識別し、RowBoundsオブジェクトでページング処理をして掲示文リストを取得する
 	}
-	
+	public List<ContentBean> searchContentList(int board_info_idx, String searchKeyword) { //メソッドは検索機能を提供するために使用。 このメソッドはboardMapperで検索されたコンテンツリストを返却
+		return boardMapper.searchContentList(board_info_idx, searchKeyword); //boardMapperのsearchContentListメソッドを呼び出し、検索結果を取得する	
+	}
 	public ContentBean getContentInfo(int content_idx) { //特定の投稿の詳細を取得するメソッド
 		return boardMapper.getContentInfo(content_idx); //掲示文の固有インデックスcontent_idxでマッパーのgetContentInfoメソッドを呼び出し、掲示文の詳細情報を取得する
 	}

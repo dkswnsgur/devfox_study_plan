@@ -2,8 +2,10 @@ package kr.co.devfox.mapper;
 
 import java.util.List;
 
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.Update;
@@ -53,6 +55,13 @@ public interface BoardMapper { //MyBatisを使用してデータベースにア�
 	//特定掲示板の全体掲示文数を照会するクエリーページングや掲示板の状態確認に使用
 	@Select("select count(*) from content_table where content_board_idx = #{content_board_idx}")
 	int getContentCnt(int content_board_idx);
+	@Select("SELECT * FROM content_table " +
+	        "WHERE content_board_idx = #{board_info_idx} " +
+	        "AND content_subject LIKE '%' || #{searchKeyword} || '%' " +
+	        "ORDER BY content_idx DESC")
+	//検索キーワードを含むコンテンツをフィルタリングし、ソートされた結果を提供
+	List<ContentBean> searchContentList(@Param("board_info_idx") int board_info_idx, 
+	                                     @Param("searchKeyword") String searchKeyword);
 } 
 
 

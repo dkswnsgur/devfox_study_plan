@@ -27,6 +27,7 @@ import kr.co.devfox.interceptor.CheckLoginInterceptor;
 import kr.co.devfox.interceptor.CheckWriterInterceptor;
 import kr.co.devfox.interceptor.TopMenuInterceptor;
 import kr.co.devfox.mapper.BoardMapper;
+import kr.co.devfox.mapper.CommentMapper;
 import kr.co.devfox.mapper.TopMenuMapper;
 import kr.co.devfox.mapper.UserMapper;
 import kr.co.devfox.service.BoardService;
@@ -123,6 +124,14 @@ public class ServletAppContext implements WebMvcConfigurer{  //Spring MVCのウ�
 		return factoryBean;
 	}
 	
+	@Bean
+	public MapperFactoryBean<CommentMapper> getCommentMapper(SqlSessionFactory factory) throws Exception{ 
+		MapperFactoryBean<CommentMapper> factoryBean = new MapperFactoryBean<CommentMapper>(CommentMapper.class);
+		factoryBean.setSqlSessionFactory(factory);
+		return factoryBean;
+	}
+	
+
 	@Override 
 	public void addInterceptors(InterceptorRegistry registry) { //アプリケーションのリクエスト処理に対するインターセプターを登録
 		// TODO Auto-generated method stub
