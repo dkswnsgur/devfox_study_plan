@@ -1,6 +1,8 @@
 package kr.co.devfox.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -27,6 +29,16 @@ public class BoardDao { //DAO(Data Access Object)クラスで、データベー�
 		return sqlSessionTemplate.selectList("board.getContentList", board_info_idx, rowBounds); //board_info_idxで掲示板を識別し、RowBoundsオブジェクトでページング処理をして掲示文リストを取得する
 	}
 	
+	public List<ContentBean> searchContentList(int board_info_idx, String searchKeyword) {
+	    // パラメータをMapにまとめて伝達
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("board_info_idx", board_info_idx);
+	    params.put("searchKeyword", searchKeyword);
+	    
+	    // クエリーIDとMapを配信
+	    return sqlSessionTemplate.selectList("board.searchContentList", params);
+	}
+	
 	public ContentBean getContentInfo(int content_idx) { //特定の投稿の詳細を取得するメソッド
 		return sqlSessionTemplate.selectOne("board.getContentInfo", content_idx); //掲示文の固有インデックスcontent_idxでマッパーのgetContentInfoメソッドを呼び出し、掲示文の詳細情報を取得する
 	}
@@ -42,6 +54,13 @@ public class BoardDao { //DAO(Data Access Object)クラスで、データベー�
 	public int getContentCnt(int content_board_idx) { //特定掲示板の書き込み数を取得するメソッド
 		return sqlSessionTemplate.selectOne("board.getContentCnt", content_board_idx); //掲示板インデックスcontent_board_idxで当該掲示板に存在する掲示板の合計数を返還
 	}
+
+	public List<ContentBean> selectList(String string, Map<String, Object> params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
 }
 
 

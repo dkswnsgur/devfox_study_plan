@@ -12,10 +12,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import kr.co.devfox.beans.CommentBean;
 import kr.co.devfox.beans.ContentBean;
 import kr.co.devfox.beans.PageBean;
 import kr.co.devfox.beans.UserBean;
 import kr.co.devfox.dao.BoardDao;
+import kr.co.devfox.dao.CommentDao;
 
 @Service
 public class BoardService {
@@ -31,6 +33,9 @@ public class BoardService {
 	
 	@Autowired
 	private BoardDao boardDao;
+	
+	@Autowired
+	private CommentDao commentDao;
 	
 	@Resource(name = "loginUserBean")
 	@Lazy
@@ -64,6 +69,11 @@ public class BoardService {
 		boardDao.addContentInfo(writeContentBean);
 	}
 	
+	public void addComment(CommentBean writeCommentBean) { 
+ 	   
+		commentDao.addComment(writeCommentBean);
+	}
+	
 	public String getBoardInfoName(int board_info_idx) {
 		return boardDao.getBoardInfoName(board_info_idx);
 	}
@@ -74,6 +84,15 @@ public class BoardService {
 		RowBounds rowBounds = new RowBounds(start, page_listcnt);
 		
 		return boardDao.getContentList(board_info_idx, rowBounds);
+	}
+	
+	public List<CommentBean> getCommentList(int contentIdx){ 
+    	
+		return commentDao.getCommentList(contentIdx);
+	}
+	
+	public List<ContentBean> searchContentList(int board_info_idx, String searchKeyword){ //searchContentListメソッドはboardDaoで検索されたコンテンツリストを返却
+		return boardDao.searchContentList(board_info_idx, searchKeyword);
 	}
 	
 	public ContentBean getContentInfo(int content_idx) {
@@ -92,8 +111,12 @@ public class BoardService {
 		boardDao.modifyContentInfo(modifyContentBean);
 	}
 	
-	public void deleteContentInfo(int content_idx) {
+	public void deleteContentInfo(int content_idx) { //与えられた投稿インデックスに該当する投稿を削除する
 		boardDao.deleteContentInfo(content_idx);
+	}
+	
+	public void deleteCommentInfo(int comment_id) { 
+		commentDao.deleteCommentInfo(comment_id);
 	}
 	
 	public PageBean getContentCnt(int content_board_idx, int currentPage) {
@@ -104,6 +127,10 @@ public class BoardService {
 		
 		return pageBean;
 	}
+	
+	
+	
+	
 }
 
 

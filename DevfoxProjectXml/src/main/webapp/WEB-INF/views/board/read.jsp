@@ -55,13 +55,45 @@
 							</c:if>
 						</div>
 					</div>
+				<c:forEach var="comment" items="${commentList}">
+        <div class="card mb-2">
+            <div class="card-body"> 
+                <!-- コメント内容 -->
+                <p><strong>${comment.comment_writer_name}:</strong> ${comment.comment_text}</p>
+                <p class="text-muted" style="font-size:0.9rem;">${comment.comment_date}</p>
+
+                <!-- コメント削除ボタン -->
+                <c:if test="${loginUserBean != null && loginUserBean.user_name == comment.comment_writer_name}">
+                    <form action="${root }board/deleteComment" method="post" style="float: right;">
+                        <input type="hidden" name="comment_id" value="${comment.comment_id}" />
+                        <button type="submit" class="btn btn-danger btn-sm">削除</button>
+                    </form>
+                </c:if>
+            </div>
+        </div>
+    </c:forEach>
+</div>
+					<!-- コメント入力フォーム -->
+					<c:if test="${loginUserBean != null}">
+					<div class="form-group">
+						<h5>コメント作成</h5>
+						<form action="${root }board/addComment" method="post">
+						    <input type="hidden" name="comment_writer_name" value="${loginUserBean.user_name}" />
+							<input type="hidden" name="content_idx" value="${content_idx}" />
+							<input type="hidden" name="board_info_idx" value="${board_info_idx}" />
+							<textarea name="comment_text" class="form-control" rows="3" placeholder="コメントを入力してください" required></textarea>
+							<div class="text-right mt-2">
+								<button type="submit" class="btn btn-success">コメントをつける</button>
+							</div>
+						</form>
+					</div>
+					</c:if>
 				</div>
 			</div>
 		</div>
 		<div class="col-sm-3"></div>
 	</div>
 </div>
-
 
 <c:import url="/WEB-INF/views/include/bottom_info.jsp"/>
 
