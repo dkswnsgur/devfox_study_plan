@@ -19,9 +19,9 @@ create table board_info_table(                                                  
 );
 
 insert into board_info_table(board_info_idx, board_info_name) values (1, 'í»ë¦Ì©ãÆ÷ù');         --°Ô½ÃÆÇ Á¤º¸ ±Û Ãß°¡
-insert into board_info_table(board_info_idx, board_info_name) values (2, 'HumorÌ©ãÆ÷ù');      --°Ô½ÃÆÇ Á¤º¸ ±Û Ãß°¡
+insert into board_info_table(board_info_idx, board_info_name) values (2, '«æ«â«¢Ì©ãÆ÷ù');      --°Ô½ÃÆÇ Á¤º¸ ±Û Ãß°¡
 insert into board_info_table(board_info_idx, board_info_name) values (3, 'ïÙö½Ì©ãÆ÷ù');         --°Ô½ÃÆÇ Á¤º¸ ±Û Ãß°¡
-insert into board_info_table(board_info_idx, board_info_name) values (4, 'SportsÌ©ãÆ÷ù');      --°Ô½ÃÆÇ Á¤º¸ ±Û Ãß°¡
+insert into board_info_table(board_info_idx, board_info_name) values (4, '«¹«Ý«ÄÌ©ãÆ÷ù');      --°Ô½ÃÆÇ Á¤º¸ ±Û Ãß°¡
  
 commit;
 
