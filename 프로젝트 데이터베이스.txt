@@ -1,9 +1,14 @@
-create sequence user_seq                                                                 --시퀀스 생성
+create sequence user_seq                                                                 --사용자 번호 시퀀스 생성
 start with 0
 increment by 1
 minvalue 0;
 
-create sequence content_seq                                                            --시퀀스 생성
+create sequence content_seq                                                            --게시글 번호 시퀀스 생성
+start with 0
+increment by 1
+minvalue 0;
+
+create sequence comment_seq                                                       --댓글 번호 시퀀스 생성
 start with 0
 increment by 1
 minvalue 0;
@@ -38,3 +43,25 @@ create table content_table(                                                     
 	                  constraint CONTENT_FK2 references board_info_table(board_info_idx),
 	content_date date not null                                                           --작성날짜 
 );
+
+
+CREATE TABLE comment_table (             --댓글 테이블
+    comment_id NUMBER PRIMARY KEY,   --댓글 번호 프리미어키
+    content_idx NUMBER,                       --댓글 인덱스
+    comment_text VARCHAR2(500),            --댓글 제목
+    comment_writer_name VARCHAR2(100),   --댓글 작성자
+    comment_date DATE DEFAULT SYSDATE,   --댓글 날짜 
+   FOREIGN KEY (content_idx) REFERENCES content_table(content_idx) --content_table content_idx가 content_table의 content_idx 필드를 참조하도록 지정
+);
+
+CREATE OR REPLACE TRIGGER before_insert_comment //댓글 번호 comment_id에 대한 시퀀스 적용
+BEFORE INSERT ON comment_table
+FOR EACH ROW
+BEGIN
+   IF :NEW.comment_id IS NULL THEN  //comment_id가 NULL인 경우, comment_seq라는 시퀀스의 다음 값을 자동으로 삽입
+        :NEW.comment_id := comment_seq.NEXTVAL;
+    END IF;
+END;
+
+INSERT INTO comment_table (comment_id, comment_text, comment_writer_name) // comment_table 게시글 삽입
+VALUES (1, 'This is a comment.', 'John Doe');
