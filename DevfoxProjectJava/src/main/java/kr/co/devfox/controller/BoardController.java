@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.devfox.beans.CommentBean;
 import kr.co.devfox.beans.ContentBean;
@@ -147,6 +148,7 @@ public class BoardController { //掲示板crudを使用するboardクラス
 	public String modify_pro(@Valid @ModelAttribute("modifyContentBean") ContentBean modifyContentBean, //作成された修正内容を検証し、問題がなければ修正された内容を保存	
 							 BindingResult result, 
 							 @RequestParam("page") int page,
+							 @RequestParam(value = "upload_file", required = false) MultipartFile uploadFile, // 파일을 받는 부분
 							 Model model) {
 		
 		model.addAttribute("page", page);
@@ -154,6 +156,12 @@ public class BoardController { //掲示板crudを使用するboardクラス
 		if(result.hasErrors()) {
 			return "board/modify";
 		}
+		
+		 // 파일이 업로드 되었는지 확인
+	    if (uploadFile != null && !uploadFile.isEmpty()) {
+	        // 파일 처리 로직 (파일 저장 등)
+	        // 예: boardService.saveUploadedFile(uploadFile);
+	    }
 		
 		boardService.modifyContentInfo(modifyContentBean); //サービスで掲示文を修正するロジックを処理
 		

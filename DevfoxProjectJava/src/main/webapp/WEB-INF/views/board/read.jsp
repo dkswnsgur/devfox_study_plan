@@ -51,7 +51,8 @@
 							<a href="${root }board/main?board_info_idx=${board_info_idx}&page=${page}" class="btn btn-primary">リストを見る</a>
 							<c:if test="${loginUserBean.user_idx == readContentBean.content_writer_idx }">
 							<a href="${root }board/modify?board_info_idx=${board_info_idx}&content_idx=${content_idx}&page=${page}" class="btn btn-info">修正する</a>
-							<a href="${root }board/delete?board_info_idx=${board_info_idx}&content_idx=${content_idx}" class="btn btn-danger">削除する</a>
+							<%-- <a href="${root }board/delete?board_info_idx=${board_info_idx}&content_idx=${content_idx}" class="btn btn-danger">削除する</a> --%>
+							 <button class="btn btn-danger" id="deletePostBtn" data-content-idx="${content_idx}">削除する</button>
 							</c:if>
 						</div>
 					</div>
@@ -96,6 +97,39 @@
 </div>
 
 <c:import url="/WEB-INF/views/include/bottom_info.jsp"/>
+
+<script>
+$(document).ready(function() {
+    // 게시글 삭제 버튼 클릭 이벤트 처리
+    $('#deletePostBtn').on('click', function() {
+        var contentIdx = $(this).data('content-idx');  // 削除する投稿のIDを取得する
+        var boardInfoIdx = ${board_info_idx}; // 掲示板情報ID取得
+
+        if (confirm("本当に削除しますか？")) {  // 削除確認メッセージ
+            $.ajax({
+                url: '${root}board/delete',  // サーバの削除処理URL
+                type: 'GET',
+                data: { 
+                    content_idx: contentIdx, // 削除する掲示文ID送信
+                    board_info_idx: boardInfoIdx // 掲示板情報ID送信
+                },
+                success: function(response) {
+                    if (response == 'success') {
+                        // 削除に成功した場合は、リストページに移動
+                        alert("文の削除に失敗しました。");
+                    } else {
+                    	alert("投稿が削除されました。");
+                    	window.location.href = '${root}board/main?board_info_idx=${board_info_idx}'; // 成功するとリストページに移動
+                    }
+                },
+                error: function() {
+                    alert("サーバーとの通信中にエラーが発生しました。");
+                }
+            });
+        }
+    });
+});
+</script>
 
 </body>
 </html>

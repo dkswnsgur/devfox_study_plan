@@ -25,7 +25,8 @@
 		<div class="col-sm-6">
 			<div class="card shadow">
 				<div class="card-body">
-					<form:form action='${root }board/write_pro' method='post' modelAttribute="writeContentBean" enctype="multipart/form-data">
+					<!-- 폼 태그에 id 추가 -->
+					<form:form id="writeForm" modelAttribute="writeContentBean" enctype="multipart/form-data">
 						<form:hidden path="content_board_idx"/>
 						<div class="form-group">
 							<form:label path="content_subject">タイトル</form:label>
@@ -43,10 +44,9 @@
 						</div>
 						<div class="form-group">
 							<div class="text-right">
-								<form:button class='btn btn-primary'>作成する</form:button>
+								<button type="button" class='btn btn-primary' id="submitBtn">作成する</button>
 							</div>
 						</div>
-					
 					</form:form>
 				</div>
 			</div>
@@ -56,6 +56,31 @@
 </div>
 
 <c:import url="/WEB-INF/views/include/bottom_info.jsp"/>
+
+<script>
+$(document).ready(function() {
+    // 버튼 클릭 시 폼을 AJAX로 전송
+    $('#submitBtn').on('click', function() {
+        var formData = new FormData($('#writeForm')[0]); // 폼 데이터를 가져와서 FormData로 변환
+
+        $.ajax({
+            url: '${root}board/write_pro', // 転送するURL
+            type: 'POST',
+            data: formData, // フォームデータ転送
+            processData: false, // デフォルトでデータをクエリ ストリングに変換するのを防止
+            contentType: false, // デフォルトで設定されるContent-Typeを無効にする
+            enctype: 'multipart/form-data',
+            success: function(response) {
+            	alert('保存されました')
+                window.location.href = '${root}board/main?board_info_idx=${writeContentBean.content_board_idx}'; // 成功するとリストページに移動
+            },
+            error: function(xhr, status, error) {
+                alert("保存できませんでした");
+            }
+        });	
+    });
+});
+</script>
 
 </body>
 </html>
