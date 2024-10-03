@@ -15,9 +15,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-	
 <c:import url="/WEB-INF/views/include/top_menu.jsp"/>
-
 <div class="container" style="margin-top:100px">
 	<div class="row">
 		<div class="col-sm-3"></div>
@@ -65,10 +63,13 @@
 
                 <!-- コメント削除ボタン -->
                 <c:if test="${loginUserBean != null && loginUserBean.user_name == comment.comment_writer_name}">
-                    <form action="${root }board/deleteComment" method="post" style="float: right;">
+                    <div style="text-align: right;">
+                    <%-- <form action="${root }board/deleteComment" method="post" style="float: right;">
                         <input type="hidden" name="comment_id" value="${comment.comment_id}" />
-                        <button type="submit" class="btn btn-danger btn-sm">削除</button>
+                        <button class="btn btn-danger" id="commitdeletePostBtn" data-content-idx="${content_idx}">削除</button> --%>
+                        <button class="btn btn-danger deleteCommentBtn" data-comment-id="${comment.comment_id}">削除</button>
                     </form>
+                    </div>
                 </c:if>
             </div>
         </div>
@@ -78,13 +79,14 @@
 					<c:if test="${loginUserBean != null}">
 					<div class="form-group">
 						<h5>コメント作成</h5>
-						<form action="${root }board/addComment" method="post">
+						<%-- <form action="${root }board/addComment" method="post"> --%>
+						<form id="commentForm">
 						    <input type="hidden" name="comment_writer_name" value="${loginUserBean.user_name}" />
 							<input type="hidden" name="content_idx" value="${content_idx}" />
 							<input type="hidden" name="board_info_idx" value="${board_info_idx}" />
 							<textarea name="comment_text" class="form-control" rows="3" placeholder="コメントを入力してください" required></textarea>
 							<div class="text-right mt-2">
-								<button type="submit" class="btn btn-success">コメントをつける</button>
+								<button type="button" id="submitCommentBtn" class="btn btn-success">コメントをつける</button>
 							</div>
 						</form>
 					</div>
@@ -119,7 +121,7 @@ $(document).ready(function() {
                         alert("文の削除に失敗しました。");
                     } else {
                     	alert("投稿が削除されました。");
-                    	window.location.href = '${root}board/main?board_info_idx=${board_info_idx}'; // 成功するとリストページに移動
+                    	window.location.href = '${root}board/main?board_info_idx=${board_info_idx}&page=${page}'; // 成功するとリストページに移動
                     }
                 },
                 error: function() {
@@ -129,6 +131,71 @@ $(document).ready(function() {
         }
     });
 });
+
+
+$(document).ready(function() {
+    // 폼 제출 시 AJAX로 서버에 요청
+    $('#submitCommentBtn').on('click', function(event) {
+        event.preventDefault(); // 기본 폼 제출 동작 방지
+
+        // 댓글 입력 폼 데이터를 가져오기
+        var formData = $('#commentForm').serialize();
+
+        $.ajax({
+            url: '${root}board/addComment', // 요청할 URL
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert("コメントが正常に登録されました！");
+                } else {
+                	 alert("コメントが正常に登録されました！");
+                	 window.location.href = '${root}board/read?board_info_idx=${board_info_idx}&content_idx=${content_idx}&page=1';
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("서버와의 통신 중 오류가 발생했습니다.");
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    // 댓글 삭제 버튼 클릭 이벤트 처리
+    $('.deleteCommentBtn').on('click', function() {
+        var commentId = $(this).data('comment-id');
+
+        if (confirm("本当にコメントを削除しますか？")) {  // 削除確認メッセージ
+            $.ajax({
+                url: '${root}board/deleteComment',  // サーバの削除処理URL
+                type: 'POST',
+                data: { 
+                	comment_id: commentId
+                },
+                success: function(response) {
+                    if (response == 'success') {
+                        // 削除に成功した場合は、リストページに移動
+                        alert("コメントが削除されました11。");
+                    } else {
+                    	alert("コメントが削除されました。");
+                    	window.location.href = '${root}board/read?board_info_idx=${board_info_idx}&content_idx=${content_idx}&page=1'; // 成功するとリストページに移動
+                    }
+                },
+                error: function() {
+                    alert("サーバーとの通信中にエラーが発生しました。");
+                }
+            });
+        }
+    });
+});
+
+
+
+
+
+
+
+
 </script>
 
 </body>
