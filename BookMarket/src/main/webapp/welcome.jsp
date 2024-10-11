@@ -2,7 +2,7 @@
 <%@ page import="java.util.Date"%>
 <html >
 <head>    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+     <link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
 	<title>Welcome</title>
 </head>
 <body>
@@ -24,20 +24,20 @@
         <div class="h-100 p-5">
           <h3><%=tagline%></h3>     
           
-          <%  
-				Date day = new java.util.Date(); // 現在の日付と時刻を取得するDateオブジェクトの作成
-				String am_pm; // AM/PMを保存する変数宣言
-				int hour = day.getHours(); // 時間
-				int minute = day.getMinutes(); // 分
-				int second = day.getSeconds(); // 秒
-				if (hour / 12 == 0) { // 12時を基準にAM/PM決定
-					am_pm = "AM"; // 12時前ならAM
+          <%
+				Date day = new java.util.Date();
+				String am_pm;
+				int hour = day.getHours();
+				int minute = day.getMinutes();
+				int second = day.getSeconds();
+				if (hour / 12 == 0) {
+					am_pm = "AM";
 				} else {
-					am_pm = "PM"; // 12時以降ならPM
+					am_pm = "PM";
 					hour = hour - 12;
 				}
-				String CT = hour + ":" + minute + ":" + second + " " + am_pm; // 時、分、秒、AM/PM情報を文字列で生成
-				out.println("현재 접속  시각: " + CT + "\n"); // 結果出力
+				String CT = hour + ":" + minute + ":" + second + " " + am_pm;
+				out.println("현재 접속  시각: " + CT + "\n");
 			%>    
         </div>
       </div>   
