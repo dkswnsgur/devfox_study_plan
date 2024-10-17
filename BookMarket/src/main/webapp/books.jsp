@@ -6,7 +6,7 @@
 
 <html>
 <head>
-  <link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
+ <link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
 
 <title>도서 목록</title>
 </head>
@@ -35,7 +35,7 @@
        		    <img src="./resources/images/<%=book.getFilename()%>" style="width: 250; height:350" />	
 				<p><h5><b><%=book.getName()%></b></h5>
 				<p><%=book.getAuthor()%>
-				<br> <%=book.getPublisher()%> | <%=book.getReleaseDate()%>
+				<br> <%=book.getPublisher()%> | <%=book.getReleaseDate() %>
 				<p> <%=book.getDescription().substring(0,60)%>....
 				<p><%=book.getUnitPrice()%>원
 				<p><a href="./book.jsp?id=<%=book.getBookId()%>" class="btn btn-secondary" role="button"> 상세 정보 &raquo;</a>

@@ -3,7 +3,7 @@
 <%@ page import="dao.BookRepository"%>
 <html>
 <head>
-  <link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
+<link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
 
 <title>도서 정보</title>
 </head>
