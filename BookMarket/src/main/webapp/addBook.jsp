@@ -4,6 +4,8 @@
 <head>
 <link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
 <script type="text/javascript" src="./resources/js/validation.js"></script>
+
+
 <title>도서 등록</title>
 </head>
 <body>
