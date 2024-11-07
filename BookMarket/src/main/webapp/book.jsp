@@ -8,7 +8,7 @@
 <title>도서 정보</title>
 <script type="text/javascript">
 	function addToCart() {
-		if (confirm("도서를 장바구니에 추가하시겠습니까?")) {
+		if (confirm("상품을 장바구니에 추가하시겠습니까?")) {
 			document.addForm.submit();
 		} else {		
 			document.addForm.reset();
