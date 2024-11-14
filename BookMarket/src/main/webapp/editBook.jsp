@@ -6,16 +6,27 @@
 <head>
  <link rel ="stylesheet" href ="./resources/css/bootstrap.min.css" />
 
-<title>도서 목록</title>
+<title>도서 편집</title>
+<script type="text/javascript">
+	function deleteConfirm(id) {
+		if (confirm("해당 상품을 삭제합니다!!") == true)
+			location.href = "./deleteBook.jsp?id=" + id;
+		else
+			return;
+	}
+</script>
 </head>
+<%
+	String edit = request.getParameter("edit");
+%>
 <body>
 <div class="container py-4">
    <%@ include file="menu.jsp"%>	
 
    <div class="p-5 mb-4 bg-body-tertiary rounded-3">
       <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">도서 목록</h1>
-        <p class="col-md-8 fs-4">BookList</p>      
+        <h1 class="display-5 fw-bold">도서 편집</h1>
+        <p class="col-md-8 fs-4">BookEditing</p>      
       </div>
     </div>
     <%@ include file="dbconn.jsp" %>
@@ -40,8 +51,18 @@
 				<br> <%=rs.getString("b_publisher")%> | <%=rs.getString("b_releaseDate")%>
 				<p> <%=rs.getString("b_description").substring(0,60)%>....
 				<p><%=rs.getString("b_unitPrice")%>원
-				<p><a href="./book.jsp?id=<%=rs.getString("b_id")%>" class="btn btn-secondary" role="button"> 상세 정보 &raquo;</a>
-			</div>	
+				<p><%
+						if (edit.equals("update")) {
+					%>
+					<a href="./updateBook.jsp?id=<%=rs.getString("b_id")%>" class="btn btn-success" role="button"> 수정 &raquo;></a>
+					<%
+						} else if (edit.equals("delete")) {
+					%>
+					<a href="#" onclick="deleteConfirm('<%=rs.getString("b_id")%>')" class="btn btn-danger" role="button">삭제 &raquo;></a>
+				
+					<%
+						}
+					%>		</div>	
 		</div>			
 		<%
 			}
