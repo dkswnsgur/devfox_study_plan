@@ -55,31 +55,42 @@
 						</div>
 					</div>
     <c:forEach var="comment" items="${commentList}">
-        <div class="card mb-2">
-            <div class="card-body"> 
-                <!-- コメント内容 -->
-                <p><strong>${comment.comment_writer_name}:</strong> ${comment.comment_text}</p>
-                <p class="text-muted" style="font-size:0.9rem;">${comment.comment_date}</p>
-
-                <!-- コメント削除ボタン -->
-                <c:if test="${loginUserBean != null && loginUserBean.user_name == comment.comment_writer_name}">
-                    <div style="text-align: right;">
-                    <%-- <form action="${root }board/deleteComment" method="post" style="float: right;">
-                        <input type="hidden" name="comment_id" value="${comment.comment_id}" />
-                        <button class="btn btn-danger" id="commitdeletePostBtn" data-content-idx="${content_idx}">削除</button> --%>
-                        <button class="btn btn-danger deleteCommentBtn" data-comment-id="${comment.comment_id}">削除</button>
-                    </form>
-                    </div>
-                </c:if>
-            </div>
+    <div class="card mb-2" id="comment-${comment.comment_id}">
+        <div class="card-body">
+            <p class="commentText">${comment.comment_text}</p>
+            <p class="text-muted" style="font-size:0.9rem;">${comment.comment_date}</p>
+        
+            <c:if test="${loginUserBean != null && loginUserBean.user_name == comment.comment_writer_name}">
+                <div style="text-align: right;">
+                    <button class="btn btn-warning editCommentBtn" data-comment-id="${comment.comment_id}" data-comment-text="${comment.comment_text}">修正</button>
+                    <button class="btn btn-danger deleteCommentBtn" data-comment-id="${comment.comment_id}">削除</button>
+                </div>
+            </c:if>
         </div>
-    </c:forEach>
+    </div>
+</c:forEach>
 </div>
+
+<!-- 수정 폼 영역 -->
+<div id="editCommentSection" style="display:none;">
+    <form id="editCommentForm" action="/DevfoxProjectJava/board/updateComment" method="POST">
+        <input type="hidden" id="commentId" name="comment_id">
+        <div class="form-group">
+            <label for="editCommentText">コメント内容</label>
+            <textarea class="form-control" id="editCommentText" name="comment_text" rows="5"></textarea>
+        </div>
+        <div class="text-right mt-2">
+            <button type="submit" class="btn btn-success">保存</button>
+            <button type="button" class="btn btn-secondary cancelEditBtn">キャンセル</button>
+        </div>
+    </form>
+</div>
+
+
 					<!-- コメント入力フォーム -->
 					<c:if test="${loginUserBean != null}">
 					<div class="form-group">
 						<h5>コメント作成</h5>
-						<%-- <form action="${root }board/addComment" method="post"> --%>
 						<form id="commentForm">
 						    <input type="hidden" name="comment_writer_name" value="${loginUserBean.user_name}" />
 							<input type="hidden" name="content_idx" value="${content_idx}" />
@@ -116,7 +127,7 @@ $(document).ready(function() {
                     board_info_idx: boardInfoIdx // 掲示板情報ID送信
                 },
                 success: function(response) {
-                    if (response == 'success') {
+                    if (response == 'false') {
                         // 削除に成功した場合は、リストページに移動
                         alert("文の削除に失敗しました。");
                     } else {
@@ -146,8 +157,8 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
-                if (response.status === 'success') {
-                    alert("コメントが正常に登録されました！");
+                if (response.status === 'false') {
+                    alert("コメントが正常に登録失敗されました！");
                 } else {
                 	 alert("コメントが正常に登録されました！");
                 	 window.location.href = '${root}board/read?board_info_idx=${board_info_idx}&content_idx=${content_idx}&page=1';
@@ -159,6 +170,7 @@ $(document).ready(function() {
         });
     });
 });
+
 
 $(document).ready(function() {
     // 댓글 삭제 버튼 클릭 이벤트 처리
@@ -173,9 +185,9 @@ $(document).ready(function() {
                 	comment_id: commentId
                 },
                 success: function(response) {
-                    if (response == 'success') {
+                    if (response == 'false') {
                         // 削除に成功した場合は、リストページに移動
-                        alert("コメントが削除されました11。");
+                        alert("コメントが削除失敗されました。");
                     } else {
                     	alert("コメントが削除されました。");
                     	window.location.href = '${root}board/read?board_info_idx=${board_info_idx}&content_idx=${content_idx}&page=1'; // 成功するとリストページに移動
@@ -189,12 +201,63 @@ $(document).ready(function() {
     });
 });
 
+   
+$(document).ready(function () {
+    // 댓글 수정 버튼 클릭 이벤트 처리
+    $('.editCommentBtn').on('click', function () {
+        var commentId = $(this).data('comment-id');
+        var commentText = $(this).data('comment-text');
+        
+        // 수정 폼에 데이터 삽입
+        $('#commentId').val(commentId);
+        $('#editCommentText').val(commentText);
+        
+        // 원래 댓글 숨기기 (잠시 사라지게 하기)
+        $('#comment-' + commentId).hide(); // 원래 댓글 요소 숨기기
+        
+        // 수정 폼 표시
+        $('#editCommentSection').show(); // 수정 폼 표시
+    });
 
+    // 수정 취소 버튼 클릭 이벤트 처리
+    $(document).on('click', '.cancelEditBtn', function () {
+        // 수정 폼 숨기기
+        $('#editCommentSection').hide();
+        
+        // 댓글 영역 다시 표시
+        var commentId = $('#commentId').val();
+        $('#comment-' + commentId).show(); // 원래 댓글 다시 표시
+    });
 
+    // 수정 내용 저장 버튼 클릭 이벤트 처리 (AJAX로 서버로 보내기)
+    $('#editCommentForm').on('submit', function (e) {
+        e.preventDefault(); // 폼이 기본적으로 제출되는 것을 방지
 
+        var commentId = $('#commentId').val();
+        var updatedText = $('#editCommentText').val();
 
-
-
+        // AJAX 요청으로 수정된 댓글 서버로 전송
+        $.ajax({
+            url: '/DevfoxProjectJava/board/updateComment',  // 서버에서 수정할 URL
+            type: 'POST', 
+            data: {
+                comment_id: commentId,
+                comment_text: updatedText
+            },
+            success: function (response) {
+                if (response === 'true') {
+                    alert("コメントが修正されました。");
+                    location.reload(); // 페이지 새로고침
+                } else {
+                    alert("コメントの修正に失敗しました。");
+                }
+            },
+            error: function () {
+                alert("サーバーとの通信中にエラーが発生しました。");
+            }
+        });
+    });
+});
 
 </script>
 

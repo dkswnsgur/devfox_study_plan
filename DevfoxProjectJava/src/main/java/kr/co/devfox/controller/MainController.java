@@ -40,15 +40,3 @@ public class MainController { //main URLに入ってくるGETリクエストを�
 		return "main"; //"main"文字列を返し、このメソッドがWEB-INF/views/main.jspファイルをレンダリングするようSpring MVCに指示する
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-

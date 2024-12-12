@@ -62,6 +62,14 @@ public interface BoardMapper { //MyBatisを使用してデータベースにア�
 	//検索キーワードを含むコンテンツをフィルタリングし、ソートされた結果を提供
 	List<ContentBean> searchContentList(@Param("board_info_idx") int board_info_idx, 
 	                                     @Param("searchKeyword") String searchKeyword);
+	@Select("SELECT * FROM content_table " +
+	        "WHERE content_board_idx = #{board_info_idx} " +
+	        "AND content_subject LIKE '%' || #{searchContent} || '%' " +
+	        "ORDER BY content_idx DESC")
+	//検索キーワードを含むコンテンツをフィルタリングし、ソートされた結果を提供
+	List<ContentBean> searchContent(@Param("board_info_idx") int board_info_idx, 
+	                                     @Param("searchContent") String searchKeyword);
+	
 } 
 
 

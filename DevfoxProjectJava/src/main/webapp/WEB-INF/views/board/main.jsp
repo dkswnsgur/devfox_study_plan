@@ -46,7 +46,7 @@
 				</tbody>
 			</table>
 			
-			 <div class="mb-3">
+			 <%-- <div class="mb-3">
 			 <ul class="pagination justify-content-center">
                 <form action="${root }board/main" method="get" class="form-inline">
                     <input type="hidden" name="board_info_idx" value="${board_info_idx}">
@@ -54,8 +54,31 @@
                     <button type="submit" class="btn btn-primary">検索</button>
                 </form>
                 </ul>
-            </div>
-			
+            </div> --%>
+            
+           <div class="mb-3">
+    <ul class="pagination justify-content-center">
+        <form action="${root}board/main" method="get" class="form-inline">
+            <input type="hidden" name="board_info_idx" value="${board_info_idx}">
+            
+            <!-- 검색 기준 선택 -->
+            <select name="searchType" class="form-control mr-2">
+                <option value="title" ${param.searchType == 'title' ? 'selected' : ''}>タイトル</option>
+                <option value="content" ${param.searchType == 'content' ? 'selected' : ''}>内容</option>
+            </select>
+            
+            <input type="text" name="searchKeyword" class="form-control mr-2" placeholder="検索キーワード" value="${param.searchKeyword}">
+            
+            <!-- 조건부 hidden 필드 -->
+            <c:if test="${param.searchType == 'content'}">
+                <input type="hidden" name="searchContent" value="${param.searchKeyword}">
+            </c:if>
+            
+            <button type="submit" class="btn btn-primary">検索</button>
+        </form>
+    </ul>
+</div>
+            
 			<div class="d-none d-md-block">
 				<ul class="pagination justify-content-center">
 					<c:choose>

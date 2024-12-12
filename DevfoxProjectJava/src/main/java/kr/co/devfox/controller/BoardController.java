@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.devfox.beans.CommentBean;
@@ -39,12 +40,14 @@ public class BoardController { //掲示板crudを使用するboardクラス
 	public String main(@RequestParam("board_info_idx") int board_info_idx, //board_info_idxはどんな掲示板なのかを識別するインデックス
 					   @RequestParam(value = "page", defaultValue = "1") int page, //現在見ているページ番号で、既定値は1
 					   @RequestParam(value = "searchKeyword", required = false)String searchKeyword,
+					   @RequestParam(value = "searchContent", required = false)String searchContent,
 					   Model model) {
 		
 		
 		model.addAttribute("board_info_idx", board_info_idx); //モデルにデータを盛り込み、ビューに配信
 		model.addAttribute("searchKeyword", searchKeyword);
-		
+		model.addAttribute("searchcontent", searchContent);
+
 		String boardInfoName = boardService.getBoardInfoName(board_info_idx); 
 		model.addAttribute("boardInfoName", boardInfoName); //該当掲示板の名前を取得してビューに送信
 		
@@ -60,6 +63,14 @@ public class BoardController { //掲示板crudを使用するboardクラス
 		} else {
 			contentList = boardService.getContentList(board_info_idx, page); 
 		}
+		
+		/*
+		 * if (searchContent != null && !searchContent.trim().isEmpty()) {
+		 * //searchKeywordが存在して空の文字列でない場合、検索結果をcontentListに設定 contentList =
+		 * boardService.searchContent(board_info_idx, searchContent);
+		 * //検索語を使用してコンテンツをフィルタリングし、contentListに保存 } else { contentList =
+		 * boardService.getContentList(board_info_idx, page); }
+		 */
 		
 		model.addAttribute("contentList", contentList); // 現在のページに該当する投稿リストを取得する
 		
@@ -115,6 +126,22 @@ public class BoardController { //掲示板crudを使用するboardクラス
 		boardService.addComment(writeCommentBean);
 		
 		return "board/addComment"; 
+	}
+	
+	@PostMapping("/updateComment")
+	@ResponseBody
+	public String updateComment(@RequestParam("comment_id") int commentId,
+	                            @RequestParam("comment_text") String commentText) {
+	    System.out.println("Received comment_id: " + commentId); // 로그로 comment_id 확인
+	    System.out.println("Received comment_text: " + commentText); // 로그로 comment_text 확인
+
+	    try {
+	        boardService.updateComment(commentId, commentText);
+	        return "true"; // 성공
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "false"; // 실패
+	    }
 	}
 		
 	

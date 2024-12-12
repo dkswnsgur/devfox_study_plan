@@ -17,6 +17,10 @@ public class CommentDao {
 		commentMapper.addComment(writeCommentBean); 
 	}
 	
+	public void updateComment(int commentId, String commentText) {
+		commentMapper.updateComment(commentId, commentText);
+ 	}
+	
 	public List<CommentBean> getCommentList(int contentIdx){ 
 		return commentMapper.getCommentList(contentIdx); 
 	}

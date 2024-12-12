@@ -18,7 +18,6 @@
 	
 <c:import url="/WEB-INF/views/include/top_menu.jsp"/>
 
-<!-- 게시판 미리보기 부분 -->
 <div class="container" style="margin-top:100px">
 	<div class="row">
 		<c:forEach var='sub_list' items="${list }" varStatus="idx">

@@ -74,7 +74,13 @@ public class BoardService { //このBoard Serviceクラスは、掲示板関連�
     	   
         commentDao.addComment(writeCommentBean);
 	}
-	
+       
+       
+       public void updateComment(int commentId, String commentText) {
+    	   commentDao.updateComment(commentId, commentText);
+    	}
+       
+      
 	public String getBoardInfoName(int board_info_idx) { //与えられた掲示板インデックスに該当する掲示板の名前を返還
 		return boardDao.getBoardInfoName(board_info_idx);
 	}
@@ -97,6 +103,11 @@ public class BoardService { //このBoard Serviceクラスは、掲示板関連�
 	
 	public List<ContentBean> searchContentList(int board_info_idx, String searchKeyword){ //searchContentListメソッドはboardDaoで検索されたコンテンツリストを返却
 		return boardDao.searchContentList(board_info_idx, searchKeyword);
+		
+	}
+	
+	public List<ContentBean> searchContent(int board_info_idx, String searchContent){ //searchContentListメソッドはboardDaoで検索されたコンテンツリストを返却
+		return boardDao.searchContent(board_info_idx, searchContent);
 		
 	}
 	
