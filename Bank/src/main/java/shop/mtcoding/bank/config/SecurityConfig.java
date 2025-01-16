@@ -1,59 +1,93 @@
 package shop.mtcoding.bank.config;
 
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import shop.mtcoding.bank.config.jwt.JwtAuthenticationFilter;
+/*import shop.mtcoding.bank.config.jwt.JwtAuthorizationFilter;*/
 import shop.mtcoding.bank.domain.user.UserEnum;
+import shop.mtcoding.bank.util.CustomResponseUtil;
 
-@Slf4j
 @Configuration
-@EnableWebSecurity //Spring Security의 웹 보안을 활성화하는 어노테이션. 이 어노테이션을 사용하면 Spring Security의 기본 보안 구성이 적용
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() { //BCryptPasswordEncoder는 비밀번호를 암호화할 때 사용하는 클래스
-        log.debug("디버그: BCryptPasswordEncoder 빈 등록됨");
+    @Bean // Ioc 컨테이너에 BCryptPasswordEncoder() 객체가 등록됨.
+    public BCryptPasswordEncoder passwordEncoder() {
+        log.debug("디버그 : BCryptPasswordEncoder 빈 등록됨");
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() { //CORS(Cross-Origin Resource Sharing) 설정을 담당한다. 이 설정은 다른 도메인에서 오는 요청에 대해 허용할 헤더, 메소드, 출처 등을 설정할 수 있게 해줌
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedHeader("*"); //모든 헤더를 허용.
-        configuration.addAllowedMethod("*"); //모든 HTTP 메소드를 허용.
-        configuration.addAllowedOrigin("*"); //모든 출처를 허용.
-        configuration.setAllowCredentials(true); //자격 증명(Cookie, HTTP 인증 등)을 허용.
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); //URL에 대한 CORS 설정을 등록하는 데 사용됩. 여기서는 모든 URL에 대해 CORS 설정을 적용
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+    // JWT 필터 등록이 필요함
+    public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager, HttpSecurity> {
+        @Override
+        public void configure(HttpSecurity builder) throws Exception {
+            AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+            builder.addFilter(new JwtAuthenticationFilter(authenticationManager));
+            /*builder.addFilter(new JwtAuthorizationFilter(authenticationManager));*/
+            super.configure(builder);
+        }
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        log.debug("디버그: HttpSecurity 설정");
+    // JWT 서버를 만들 예정!! Session 사용안함.
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.debug("디버그 : filterChain 빈 등록됨");
+        http.headers().frameOptions().sameOrigin(); // iframe 허용안함.
+        http.csrf().disable(); // enable이면 post맨 작동안함 (메타코딩 유튜브에 시큐리티 강의)
+        http.cors().configurationSource(configurationSource());
 
-        http.headers().frameOptions().disable(); //헤더를 비활성화하여, 애플리케이션이 다른 웹 페이지에서 iframe으로 로드될 수 있도록 허용함. 주로 H2 데이터베이스 콘솔을 사용할 때 필요
-        http.csrf().disable(); //CSRF(Cross-Site Request Forgery) 공격을 방지하는 기능을 비활성. REST API 서버에서 주로 사용
-        http.cors().configurationSource(corsConfigurationSource()); //CORS 설정을 활성. corsConfigurationSource 메소드를 통해 설정된 CORS 정책을 적용
+        // jSessionId를 서버쪽에서 관리안하겠다는 뜻!!
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // react, 앱으로 요청할 예정
+        http.formLogin().disable();
+        // httpBasic은 브라우저가 팝업창을 이용해서 사용자 인증을 진행한다.
+        http.httpBasic().disable();
 
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //세션 관리를 STATELESS로 설정합니다. 이 설정은 서버에서 세션을 생성하거나 유지하지 않도록 함. 일반적으로 JWT 기반 인증 시스템에서 사용
-        http.formLogin().disable(); // 기본 로그인 폼을 비활성화. 클라이언트에서 커스텀 로그인 방식이나 다른 인증 방법을 사용하도록 설정할 때 필요
-        http.httpBasic().disable(); //HTTP 기본 인증을 비활성화합
+        // 필터 적용
+        http.apply(new CustomSecurityFilterManager());
 
-        http.authorizeRequests() //URL 경로에 대한 접근 제어를 설정
-                .antMatchers("/api/s/**").authenticated() ///api/s/로 시작하는 모든 요청은 인증된 사용자만 접근 가능.
-                .antMatchers("/api/admin/**").hasRole("ADMIN") // /api/admin/로 시작하는 요청은 ADMIN 역할을 가진 사용자만 접근 가능
-                .anyRequest().permitAll(); //나머지 모든 요청은 인증 없이 허용
+        // 인증 실패
+        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
+            CustomResponseUtil.fail(response, "로그인을 진행해 주세요", HttpStatus.UNAUTHORIZED);
+        });
+
+        // 권한 실패
+        http.exceptionHandling().accessDeniedHandler((request, response, e) -> {
+            CustomResponseUtil.fail(response, "권한이 없습니다", HttpStatus.FORBIDDEN);
+        });
+
+        // https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
+        http.authorizeRequests()
+                .antMatchers("/api/s/**").authenticated()
+                .antMatchers("/api/admin/**").hasRole("" + UserEnum.ADMIN) // 최근 공식문서에서는 ROLE_ 안붙여도 됨
+                .anyRequest().permitAll();
+
+        return http.build();
+    }
+
+    public CorsConfigurationSource configurationSource() {
+        log.debug("디버그 : configurationSource cors 설정이 SecurityFilterChain에 등록됨");
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE (Javascript 요청 허용)
+        configuration.addAllowedOrigin("*"); // 모든 IP 주소 허용 (프론트 앤드 IP만 허용 react)
+        configuration.setAllowCredentials(true); // 클라이언트에서 쿠키 요청 허용
+        configuration.addExposedHeader("Authorization"); // 옛날에는 디폴트 였다. 지금은 아닙니다.
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

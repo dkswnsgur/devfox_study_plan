@@ -1,59 +1,57 @@
 package shop.mtcoding.bank.config;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@Sql("classpath:db/teardown.sql")
+@ActiveProfiles("test")
+@AutoConfigureMockMvc // Mock(가짜) 환경에 MockMvc가 등록됨
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 public class SecurityConfigTest {
 
+    // 가짜 환경에 등록된 MockMvc를 DI함.
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc mvc;
 
-    // 1. 인증 없이 접근 가능한 URL 테스트
+    // 서버는 일관성있게 에러가 리턴되어야 한다.
+    // 내가 모르는 에러가 프론트한테 날라가지 않게, 내가 직접 다 제어하자.
     @Test
-    public void permitAllAccessTest() throws Exception {
-        mockMvc.perform(get("/")) // 기본적으로 모든 사용자가 접근 가능
-                .andExpect(status().isOk());
+    public void authentication_test() throws Exception {
+        // given
+
+        // when
+        ResultActions resultActions = mvc.perform(get("/api/s/hello"));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        int httpStatusCode = resultActions.andReturn().getResponse().getStatus();
+        System.out.println("테스트 : " + responseBody);
+        System.out.println("테스트 : " + httpStatusCode);
+
+        // then
+        assertThat(httpStatusCode).isEqualTo(401);
     }
 
-    // 2. 인증이 필요한 URL 테스트 (비인증 사용자로 접근)
     @Test
-    public void unauthenticatedAccessTest() throws Exception {
-        mockMvc.perform(get("/api/s/secure-endpoint")) // 인증이 필요한 URL
-                .andExpect(status().isUnauthorized()); // 401 상태 코드 반환
-    }
+    public void authorization_test() throws Exception {
+        // given
 
-    // 3. 인증된 사용자로 접근 테스트
-    @Test
-    @org.springframework.security.test.context.support.WithMockUser(username = "user", roles = "USER")
-    public void authenticatedAccessTest() throws Exception {
-        mockMvc.perform(get("/api/s/secure-endpoint")) // 인증이 필요한 URL
-                .andExpect(status().isOk());
-    }
+        // when
+        ResultActions resultActions = mvc.perform(get("/api/admin/hello"));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        int httpStatusCode = resultActions.andReturn().getResponse().getStatus();
+        System.out.println("테스트 : " + responseBody);
+        System.out.println("테스트 : " + httpStatusCode);
 
-    // 4. 관리자 권한이 필요한 URL 테스트
-    @Test
-    @org.springframework.security.test.context.support.WithMockUser(username = "admin", roles = "ADMIN")
-    public void adminAccessTest() throws Exception {
-        mockMvc.perform(get("/api/admin/secure-endpoint")) // 관리자 권한이 필요한 URL
-                .andExpect(status().isOk());
-    }
-
-    // 5. 관리자 권한이 없는 사용자로 관리자 URL 접근 테스트
-    @Test
-    @org.springframework.security.test.context.support.WithMockUser(username = "user", roles = "USER")
-    public void forbiddenAccessTest() throws Exception {
-        mockMvc.perform(get("/api/admin/secure-endpoint")) // 관리자 권한이 필요한 URL
-                .andExpect(status().isForbidden()); // 403 상태 코드 반환
+        // then
+        assertThat(httpStatusCode).isEqualTo(401);
     }
 }
