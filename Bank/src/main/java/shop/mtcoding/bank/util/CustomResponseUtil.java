@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import shop.mtcoding.bank.dto.ResponseDto;
 
-
 public class CustomResponseUtil {
     private static final Logger log = LoggerFactory.getLogger(CustomResponseUtil.class);
 
@@ -25,8 +24,6 @@ public class CustomResponseUtil {
             log.error("서버 파싱 에러");
         }
     }
-
-
 
     public static void fail(HttpServletResponse response, String msg, HttpStatus httpStatus) {
         try {
