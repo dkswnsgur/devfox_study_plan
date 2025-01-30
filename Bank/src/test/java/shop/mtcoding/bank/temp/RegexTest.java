@@ -98,4 +98,5 @@ public class RegexTest {
         boolean result = Pattern.matches("^[0-9]{11}", tel);
         System.out.println("테스트 : " + result);
     }
+
 }

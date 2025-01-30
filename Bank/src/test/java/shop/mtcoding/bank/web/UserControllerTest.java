@@ -24,7 +24,8 @@ import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.user.UserReqDto.JoinReqDto;
 
-@Transactional
+//spring boot 테스트 하는곳은 전부다 teardown.sql 을 붙혀주자
+@Sql("classpath:db/teardown.sql") //실행 시점 : beforeEach 실행 직전
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
@@ -41,15 +42,15 @@ public class UserControllerTest extends DummyObject {
 
     @BeforeEach
     public void setUp() {
-        userRepository.save(newUser("ssar", "쌀"));
-        em.clear();
+       userRepository.save(newUser("ssar", "쌀"));
+       em.clear();
     }
 
     @Test
     public void join_success_test() throws Exception {
         // given
         JoinReqDto joinReqDto = new JoinReqDto();
-        joinReqDto.setUsername("love");
+        joinReqDto.setUsername("ssar");
         joinReqDto.setPassword("1234");
         joinReqDto.setEmail("love@nate.com");
         joinReqDto.setFullname("러브");

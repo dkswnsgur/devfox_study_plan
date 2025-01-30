@@ -7,10 +7,33 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
 
+import shop.mtcoding.bank.domain.transaction.Transction;
+import shop.mtcoding.bank.domain.transaction.TransctionEnum;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserEnum;
 
 public class DummyObject {
+
+    //계좌 1111L 1000원
+    //입금 트랜잭션 -> 계좌 1100원 변경 ->
+    protected static Transction newMockDepositTransaction(Long id, Account account) {
+        account.deposit(100L);
+        Transction transaction = Transction.builder()
+                .id(id)
+                .iwitdrawAccount(null)
+                .depositAccount(account)
+                .withdrawAccountBalance(null)
+                .depositAccountBalance(account.getBalance())
+                .amount(100L)
+                .gubun(TransctionEnum.DEPOSIT)
+                .sender("ATM")
+                .receiver(account.getNumber() + "")
+                .tel("01088887777")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        return transaction;
+    }
 
     protected static User newUser(String username, String fullname) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

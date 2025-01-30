@@ -15,7 +15,7 @@ public class CustomResponseUtil {
     public static void success(HttpServletResponse response, Object dto) {
         try {
             ObjectMapper om = new ObjectMapper();
-            ResponseDto<?> responseDto = new ResponseDto<>(1, "로그인성공", dto);
+            ResponseDto<?> responseDto = new ResponseDto<>(1, "로그인성공", dto); //이게 3가지 표현할수 있는거
             String responseBody = om.writeValueAsString(responseDto);
             response.setContentType("application/json; charset=utf-8");
             response.setStatus(200);

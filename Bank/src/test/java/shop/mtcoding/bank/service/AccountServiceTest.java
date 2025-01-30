@@ -3,6 +3,7 @@ package shop.mtcoding.bank.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
@@ -18,10 +19,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import shop.mtcoding.bank.config.dummy.DummyObject;
 import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
+import shop.mtcoding.bank.domain.transaction.TransactionRepository;
+import shop.mtcoding.bank.domain.transaction.Transction;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.dto.account.AccountReqDto;
 import shop.mtcoding.bank.dto.account.AccountRespDto;
+import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +42,9 @@ public class AccountServiceTest extends DummyObject {
 
     @Spy //진짜 객체를 InjectMocks 에 주입한다
     private ObjectMapper om;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @Test
     public void 계좌등록_test() throws Exception {
@@ -60,11 +67,66 @@ public class AccountServiceTest extends DummyObject {
         when(accountRepository.save(any())).thenReturn(ssarAccount);
 
         //when
-        AccountRespDto.AccountSaveRespDto accountSaveRespDto = accountService.계좌등록(accountSaveReqDto, userId);
+        AccountRespDto.AccountDepositRespDto.AccountSaveRespDto accountSaveRespDto = accountService.계좌등록(accountSaveReqDto, userId);
         String responseBody = om.writeValueAsString(accountSaveRespDto);
         System.out.println("테스트 :"+ responseBody);
 
         //then
         assertThat(accountSaveRespDto.getNumber()).isEqualTo(1111L);
+    }
+
+    @Test
+    public void 계좌삭제_test() throws Exception {
+        //given
+        Long number = 1111L;
+        Long userId = 2L;
+
+        //stub
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        Account ssarAccount = newMockAccount(1L, 1111L, 1000L, ssar);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount));
+
+        //when
+        try {
+            accountService.계좌삭제(number, userId);
+        }catch (Exception e) {
+            return;
+        }
+
+        //then
+        assertThrows(CustomApiException.class, () -> accountService.계좌삭제(number, userId));
+    }
+
+    // Account -> balance 변경됐는지
+    // Trasction -> balance 잘 기록됐는지
+    @Test
+    public void 계좌입금_test() throws Exception {
+        // given
+        AccountReqDto.AccountDepositReqDto accountDepositReqDto = new AccountReqDto.AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun("DEPOSIT");
+        accountDepositReqDto.setTel("01088887777");
+
+        // stub 1L
+        User ssar = newMockUser(1L, "ssar", "쌀"); // 실행됨
+        Account ssarAccount1 = newMockAccount(1L, 1111L, 1000L, ssar); // 실행됨 - ssarAccount1 -> 1000원
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount1)); // 실행안됨 -> service호출후 실행됨 ->
+        // 1100원
+
+        // stub 2 (스텁이 진행될 때 마다 연관된 객체는 새로 만들어서 주입하기 - 타이밍 때문에 꼬인다)
+        Account ssarAccount2 = newMockAccount(1L, 1111L, 1000L, ssar); // 실행됨 - ssarAccount1 -> 1000원
+        Transction transaction = newMockDepositTransaction(1L, ssarAccount2);
+        when(transactionRepository.save(any())).thenReturn(transaction); // 실행안됨
+
+        // when
+        AccountRespDto.AccountDepositRespDto accountDepositRespDto = accountService.계좌입금(accountDepositReqDto);
+        System.out.println("테스트 : 트랜잭션 입금계좌 잔액 : " + accountDepositRespDto.getTransaction().getDepositAccountBalance());
+        System.out.println("테스트 : 계좌쪽 잔액 : " + ssarAccount1.getBalance());
+        System.out.println("테스트 : 계좌쪽 잔액 : " + ssarAccount2.getBalance());
+
+        // then
+        assertThat(ssarAccount1.getBalance()).isEqualTo(1100L);
+        assertThat(accountDepositRespDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
     }
 }

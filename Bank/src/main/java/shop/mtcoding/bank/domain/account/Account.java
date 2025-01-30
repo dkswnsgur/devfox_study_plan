@@ -7,8 +7,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import shop.mtcoding.bank.domain.user.User;
+import shop.mtcoding.bank.handler.ex.CustomApiException;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor //스프링이 User 객체를 생성할떄 빈 생성자로 new를 하기 떄문
@@ -47,5 +49,17 @@ public class Account {
         this.user = user;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public void checkOwner(Long userId) {
+        /*String testUsername = user.getUsername(); //Lazy 로딩이 되어야함
+        System.out.println("테스트 : "+ testUsername);*/
+        if(user.getId() != userId){ // Lazy 로딩이어도 id를 조회할때는 selecter 쿼리가 날아가지 않는다
+            throw new CustomApiException("계좌 소유자가 아닙니다");
+        }
+    }
+
+    public void deposit(Long amount) {
+        balance = balance + amount;
     }
 }

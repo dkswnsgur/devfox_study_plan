@@ -24,7 +24,7 @@ public class AccountController {
     @PostMapping("/s/account")
     public ResponseEntity<?> saveAccount (@RequestBody @Valid AccountReqDto.AccountSaveReqDto accountSaveReqDto,
                                           BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser){
-        AccountRespDto.AccountSaveRespDto accountSaveRespDto = accountService.계좌등록(accountSaveReqDto, loginUser.getUser().getId());
+        AccountRespDto.AccountDepositRespDto.AccountSaveRespDto accountSaveRespDto = accountService.계좌등록(accountSaveReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 등록 성공", accountSaveRespDto), HttpStatus.CREATED);
     }
 
@@ -38,7 +38,19 @@ public class AccountController {
     @GetMapping("/s/account/login-user")
     public ResponseEntity<?> findUserAccount(@AuthenticationPrincipal LoginUser loginUser) {
 
-        AccountRespDto.AccountSaveRespDto.AccountListRespDto accountListRespDto = accountService.계좌목록보기_유저별(loginUser.getUser().getId());
+        AccountRespDto.AccountDepositRespDto.AccountSaveRespDto.AccountListRespDto accountListRespDto = accountService.계좌목록보기_유저별(loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1,"계좌목록_유저별 성공",accountListRespDto), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/s/account/{number}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long number, @AuthenticationPrincipal LoginUser loginUser) {
+        accountService.계좌삭제(number, loginUser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1,"계좌 삭제 완료",null), HttpStatus.OK);
+    }
+
+    @PostMapping("/account/deposit")
+    public ResponseEntity<?> depositAccount(@RequestBody @Valid AccountReqDto.AccountDepositReqDto accountDepositReqDto, BindingResult bindingResult) {
+        AccountRespDto.AccountDepositRespDto accountDepositRespDto = accountService.계좌입금(accountDepositReqDto);
+        return new ResponseEntity<>(new ResponseDto<>(1,"계좌 입금 완료", accountDepositRespDto), HttpStatus.OK);
     }
 }
