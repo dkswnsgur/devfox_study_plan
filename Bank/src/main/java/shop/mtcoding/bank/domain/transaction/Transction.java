@@ -1,61 +1,78 @@
 package shop.mtcoding.bank.domain.transaction;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import shop.mtcoding.bank.domain.account.Account;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-
-@NoArgsConstructor //스프링이 User 객체를 생성할떄 빈 생성자로 new를 하기 떄문
+@NoArgsConstructor // 스프링이 User 객체생성할 때 빈생성자로 new를 하기 때문!!
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "transaction_tb")
 @Entity
-
 public class Transction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Many: Transaction -> Account (외래키)
-    @JoinColumn(name = "iwitdraw_account_id", referencedColumnName = "id") // 외래키 컬럼명 지정
-    private Account iwitdrawAccount;
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Account withdrawAccount;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Many: Transaction -> Account (외래키)
-    @JoinColumn(name = "deposit_account_id", referencedColumnName = "id") // 외래키 컬럼명 지정
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account depositAccount;
 
+    @Column(nullable = false)
     private Long amount;
 
-    private Long withdrawAccountBalance; // 11계좌 -> 1000원 --> 500원 --> 200원
-    private long depositAccountBalance;
+    private Long withdrawAccountBalance; // 1111 계좌 -> 1000원 -> 500원 -> 200원
+    private Long depositAccountBalance;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TransctionEnum gubun; //WITHDRAW, DEPOSIT, TRANSFER, ALL
+    private TransctionEnum gubun; // WITHDRAW, DEPOSIT, TRANSFER, ALL
 
-    //계좌가 사라져도 로그는 남아야 한다
+    // 계좌가 사라져도 로그는 남아야 한다.
     private String sender;
     private String receiver;
-    private String tel;
+    private String tel; // ATM -> 1111 입금 (ATM기로 무통장 입금 - 전화번호는 좀 남겨나야 함)
 
-    @CreatedDate //Insert
+    @CreatedDate // Insert
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate //Insert, Update
+    @LastModifiedDate // Insert, Update
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @Builder
-    public Transction(Long id, Account iwitdrawAccount, Account depositAccount, Long amount, Long withdrawAccountBalance, long depositAccountBalance, TransctionEnum gubun, String sender, String receiver, String tel, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Transction(Long id, Account withdrawAccount, Account depositAccount, Long amount,
+                       Long withdrawAccountBalance, Long depositAccountBalance, TransctionEnum gubun, String sender,
+                       String receiver, String tel, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
-        this.iwitdrawAccount = iwitdrawAccount;
+        this.withdrawAccount = withdrawAccount;
         this.depositAccount = depositAccount;
         this.amount = amount;
         this.withdrawAccountBalance = withdrawAccountBalance;
@@ -67,4 +84,5 @@ public class Transction {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 }

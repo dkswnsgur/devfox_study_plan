@@ -20,7 +20,7 @@ public class DummyObject {
         account.deposit(100L);
         Transction transaction = Transction.builder()
                 .id(id)
-                .iwitdrawAccount(null)
+                .withdrawAccount(null)
                 .depositAccount(account)
                 .withdrawAccountBalance(null)
                 .depositAccountBalance(account.getBalance())

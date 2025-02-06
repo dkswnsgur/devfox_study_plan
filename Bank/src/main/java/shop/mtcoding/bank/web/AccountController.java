@@ -15,16 +15,16 @@ import shop.mtcoding.bank.service.AccountService;
 
 import javax.validation.Valid;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor//Lombok 애노테이션으로, final 또는 @NonNull로 선언된 모든 필드를 매개변수로 하는 생성자를 자동으로 생성
 @RequestMapping("/api")
-@RestController
+@RestController //자동으로 json형식으로 바꿔줌
 public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/s/account")
     public ResponseEntity<?> saveAccount (@RequestBody @Valid AccountReqDto.AccountSaveReqDto accountSaveReqDto,
                                           BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser){
-        AccountRespDto.AccountDepositRespDto.AccountSaveRespDto accountSaveRespDto = accountService.계좌등록(accountSaveReqDto, loginUser.getUser().getId());
+       AccountRespDto.AccountSaveRespDto accountSaveRespDto = accountService.계좌등록(accountSaveReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 등록 성공", accountSaveRespDto), HttpStatus.CREATED);
     }
 
@@ -38,7 +38,7 @@ public class AccountController {
     @GetMapping("/s/account/login-user")
     public ResponseEntity<?> findUserAccount(@AuthenticationPrincipal LoginUser loginUser) {
 
-        AccountRespDto.AccountDepositRespDto.AccountSaveRespDto.AccountListRespDto accountListRespDto = accountService.계좌목록보기_유저별(loginUser.getUser().getId());
+        AccountRespDto.AccountListRespDto accountListRespDto = accountService.계좌목록보기_유저별(loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1,"계좌목록_유저별 성공",accountListRespDto), HttpStatus.OK);
     }
 
@@ -53,4 +53,31 @@ public class AccountController {
         AccountRespDto.AccountDepositRespDto accountDepositRespDto = accountService.계좌입금(accountDepositReqDto);
         return new ResponseEntity<>(new ResponseDto<>(1,"계좌 입금 완료", accountDepositRespDto), HttpStatus.OK);
     }
+
+    @PostMapping("/s/account/withdraw")
+    public ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountReqDto.AccountWithdrawReqDto accountWithdrawReqDto,
+                                             BindingResult bindingResult,
+                                             @AuthenticationPrincipal LoginUser loginuser) {
+        AccountRespDto.AccountWithdrawRespDto accountWithdrawRespDto = accountService.계좌출금(accountWithdrawReqDto,loginuser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1,"계좌 출금 완료", accountWithdrawRespDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/s/account/transfer")
+    public ResponseEntity<?> transferAccount(@RequestBody @Valid AccountReqDto.AccountTransferReqDto accountTransferReqDto,
+                                             BindingResult bindingResult,
+                                             @AuthenticationPrincipal LoginUser loginuser) {
+        AccountRespDto.AccountTransferRespDto accountTransferRespDto = accountService.계좌이체(accountTransferReqDto,loginuser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1,"계좌 이체 완료", accountTransferRespDto), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/s/account/{number}")
+    public ResponseEntity<?> findDetailAccount(@PathVariable Long number,
+                                               @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                               @AuthenticationPrincipal LoginUser loginUser) {
+        AccountRespDto.AccountDetailRespDto accountDetailRespDto = accountService.계좌상세보기(number, loginUser.getUser().getId(),
+                page);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌상세보기 성공", accountDetailRespDto), HttpStatus.OK);
+    }
+
+
 }
