@@ -1,71 +1,50 @@
 package com.group.libraryapp.controller.user;
 
-import com.group.libraryapp.domain.user.Fruit;
-import com.group.libraryapp.domain.user.User;
 import com.group.libraryapp.dto.user.request.UserCreateRequest;
 import com.group.libraryapp.dto.user.request.UserUpdateRequest;
 import com.group.libraryapp.dto.user.response.UserResponse;
+import com.group.libraryapp.service.fruit.FruitService;
+import com.group.libraryapp.service.user.UserServiceV1;
+import com.group.libraryapp.service.user.UserServiceV2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class UserController {
 
-    private final JdbcTemplate jdbcTemplate;
+    private UserServiceV2 userServiceV2;
+    private FruitService fruitService;
 
-    public UserController(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public UserController(UserServiceV2 userServiceV2, @Qualifier("appleService") FruitService fruitService) {
+        this.userServiceV2 = userServiceV2;
+        this.fruitService = fruitService;
     }
 
     @PostMapping("/user") //POST /user
     public void saveUser(@RequestBody UserCreateRequest request) {
-      String sql = "INSERT INTO user (name, age) VALUES (?, ?)";
-      jdbcTemplate.update(sql, request.getName(), request.getAge());
+        userServiceV2.saveUser(request);
     }
 
     @GetMapping("/user")
     public List<UserResponse> getUsers() {
-        String sql = "SELECT * FROM user";
-        return jdbcTemplate.query(sql, new RowMapper<UserResponse>() {
-          @Override
-            public UserResponse mapRow(ResultSet rs, int rowNum) throws SQLException {
-              long id = rs.getLong("id");
-              String name = rs.getString("name");
-              int age = rs.getInt("age");
-              return new UserResponse(id, name, age);
-        }
-        });
+        return userServiceV2.getUsers();
     }
 
     @PutMapping("/user")
     public void updateUser(@RequestBody UserUpdateRequest request) {
-        String readSql = "SELECT * FROM user WHERE id = ?";
-        boolean isUserNotExist = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, request.getId()).isEmpty(); //true 가 되야됨 작동하려면
-        if (isUserNotExist) {
-            throw new IllegalArgumentException();
-        }
-
-       String sql = "UPDATE user SET name = ? WHERE id = ?";
-       jdbcTemplate.update(sql, request.getName(), request.getId());
+        userServiceV2.updateUser(request);
     }
 
     @DeleteMapping("/user")
     public void deleteUser(@RequestParam String name) {
-        //유저가 존재하지 않는 사용자
-        String readSql = "SELECT * FROM user WHERE name = ?";
-        boolean isUserNotExist = jdbcTemplate.query(readSql, (rs, rowNum) -> 0, name).isEmpty();
-        if (isUserNotExist) {
-            throw new IllegalArgumentException();
-        }
-
-        String sql = "DELETE FROM user WHERE name = ?";
-        jdbcTemplate.update(sql, name);
+        userServiceV2.deleteUser(name);
     }
 
     @GetMapping("/user/error-test")
