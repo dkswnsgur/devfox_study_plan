@@ -7,16 +7,39 @@
 <script>
 import AppFooter from './components/AppFooter.vue';
 import AppHeader from './components/AppHeader.vue';
+import store from './scripts/store';
 
-
+import axios from 'axios';             
+import { watch } from 'vue';             
+import { useRoute } from 'vue-router';   
 
 export default {
   name: 'App',
   components: {
-     AppFooter,
-     AppHeader,
+    AppFooter,
+    AppHeader,
+  },
+  setup() {
+    const check = () => {
+      axios.get("/api/account/check").then(({ data }) => {
+        console.log(data);
+
+        if (data) {
+          store.commit("setAccount", data);
+        } else {
+          store.commit("setAccount", 0);
+        }
+      });
+    };
+
+    const route = useRoute();
+
+    watch(route, () => {
+      check();
+    });
+
+    check(); 
   }
-  
 }
 </script>
 
